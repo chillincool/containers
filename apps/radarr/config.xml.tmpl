@@ -1,0 +1,15 @@
+<Config>
+  <LogLevel>${RADARR__LOG_LEVEL:-info}</LogLevel>
+  <UrlBase>${RADARR__URL_BASE}</UrlBase>
+  <Branch>${RADARR__BRANCH:-master}</Branch>
+  <ApiKey>${RADARR__API_KEY}</ApiKey>
+  <AuthenticationMethod>${RADARR__AUTHENTICATION_METHOD:-External}</AuthenticationMethod>
+  <AuthenticationRequired>${RADARR__AUTHENTICATION_REQUIRED:-DisabledForLocalAddresses}</AuthenticationRequired>
+  <InstanceName>${RADARR__INSTANCE_NAME}</InstanceName>
+  <Port>${RADARR__PORT}</Port>
+  <BindAddress>*</BindAddress>
+  <LaunchBrowser>False</LaunchBrowser>
+  <EnableSsl>False</EnableSsl>
+  <UpdateMechanism>Docker</UpdateMechanism>
+  <Theme>${RADARR__THEME:-auto}</Theme>
+</Config>
