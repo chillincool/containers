@@ -141,8 +141,8 @@ jobs:
           file: apps/${{ matrix.app }}/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=ghcr.io/chillincool/${{ matrix.app }}:cache
-          cache-to: type=registry,ref=ghcr.io/chillincool/${{ matrix.app }}:cache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ghcr.io/chillincool/${{ matrix.app }}:latest
             ghcr.io/chillincool/${{ matrix.app }}:${{ github.sha }}
