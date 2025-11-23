@@ -28,7 +28,15 @@ jobs:
             echo "No apps changed."
             echo "matrix=[]" >> $GITHUB_OUTPUT
           else
-            MATRIX_JSON=$(printf '%s\n' $CHANGED_APPS | jq -R . | jq -s .)
+            # Convert newline-separated apps to JSON array
+            MATRIX_JSON='['
+            while IFS= read -r app; do
+              if [ -n "$MATRIX_JSON" ] && [ "$MATRIX_JSON" != "[" ]; then
+                MATRIX_JSON="$MATRIX_JSON,"
+              fi
+              MATRIX_JSON="$MATRIX_JSON\"$app\""
+            done <<< "$CHANGED_APPS"
+            MATRIX_JSON="$MATRIX_JSON]"
             echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
           fi
 
