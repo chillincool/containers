@@ -1,6 +1,6 @@
 # AI Agent Instructions for chillincool/containers
 
-This is a private monorepo of OCI container images maintained personally. These instructions help AI agents quickly become productive by understanding the architecture, workflows, and project conventions.
+This is a private monorepo of OCI container images maintained personally. These instructions help AI agents quickly become productive by understanding the architecture, workflows, and project conventions..
 
 ## Architecture Overview
 
