@@ -1,15 +1,19 @@
 <Config>
-  <LogLevel>${RADARR__LOG_LEVEL:-info}</LogLevel>
-  <UrlBase>${RADARR__URL_BASE}</UrlBase>
-  <Branch>${RADARR__BRANCH:-master}</Branch>
-  <ApiKey>${RADARR__API_KEY}</ApiKey>
-  <AuthenticationMethod>${RADARR__AUTHENTICATION_METHOD:-External}</AuthenticationMethod>
-  <AuthenticationRequired>${RADARR__AUTHENTICATION_REQUIRED:-DisabledForLocalAddresses}</AuthenticationRequired>
-  <InstanceName>${RADARR__INSTANCE_NAME}</InstanceName>
-  <Port>${RADARR__PORT}</Port>
-  <BindAddress>*</BindAddress>
-  <LaunchBrowser>False</LaunchBrowser>
-  <EnableSsl>False</EnableSsl>
-  <UpdateMechanism>Docker</UpdateMechanism>
-  <Theme>${RADARR__THEME:-auto}</Theme>
+  <LogLevel>{{ getenv "RADARR__LOG_LEVEL" | default "info" }}</LogLevel>
+  <UrlBase>{{ getenv "RADARR__URL_BASE" | default "" }}</UrlBase>
+  <Branch>{{ getenv "RADARR__BRANCH" | default "master" }}</Branch>
+  <ApiKey>{{ getenv "RADARR__API_KEY" | default "changeme" }}</ApiKey>
+  <AuthenticationMethod>{{ getenv "RADARR__AUTHENTICATION_METHOD" | default "Forms" }}</AuthenticationMethod>
+  <AuthenticationRequired>{{ getenv "RADARR__AUTHENTICATION_REQUIRED" | default "DisabledForLocalAddresses" }}</AuthenticationRequired>
+  <InstanceName>{{ getenv "RADARR__INSTANCE_NAME" | default "Radarr" }}</InstanceName>
+  <Port>{{ getenv "RADARR__PORT" | default "7878" }}</Port>
+  <BindAddress>{{ getenv "RADARR__BIND_ADDRESS" | default "*" }}</BindAddress>
+  <LaunchBrowser>{{ getenv "RADARR__LAUNCH_BROWSER" | default "False" }}</LaunchBrowser>
+  <EnableSsl>{{ getenv "RADARR__ENABLE_SSL" | default "False" }}</EnableSsl>
+  <SslPort>{{ getenv "RADARR__SSL_PORT" | default "6969" }}</SslPort>
+  <SslCertPath>{{ getenv "RADARR__SSL_CERT_PATH" | default "" }}</SslCertPath>
+  <SslCertPassword>{{ getenv "RADARR__SSL_CERT_PASSWORD" | default "" }}</SslCertPassword>
+  <UpdateMechanism>{{ getenv "RADARR__UPDATE_MECHANISM" | default "Docker" }}</UpdateMechanism>
+  <AnalyticsEnabled>{{ getenv "RADARR__ANALYTICS_ENABLED" | default "False" }}</AnalyticsEnabled>
+  <Theme>{{ getenv "RADARR__THEME" | default "auto" }}</Theme>
 </Config>

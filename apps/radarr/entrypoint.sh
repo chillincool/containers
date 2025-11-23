@@ -4,7 +4,7 @@ set -e
 # Expand environment variables in config.xml.tmpl
 if [[ ! -f /config/config.xml ]]; then
     echo "Generating config.xml from template..."
-    envsubst < /app/config.xml.tmpl > /config/config.xml
+    gomplate -f /config.xml.tmpl -o /config/config.xml --datasource env
 fi
 
 # Start Radarr

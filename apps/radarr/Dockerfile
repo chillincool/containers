@@ -4,12 +4,15 @@ FROM docker.io/library/alpine:3.22
 ARG TARGETARCH
 ARG VENDOR
 ARG VERSION
+ARG GOMPLATE_VERSION=v4.3.3
 
 ENV DOTNET_EnableDiagnostics=0 \
     RADARR__UPDATE__BRANCH=develop
 
 USER root
 WORKDIR /app
+RUN wget -O /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v4.3.3/gomplate_linux-amd64 \
+    && chmod +x /usr/local/bin/gomplate
 
 RUN \
     apk add --no-cache \
@@ -18,13 +21,13 @@ RUN \
         catatonit \
         coreutils \
         curl \
+        #gomplate \
         icu-libs \
         jq \
         libintl \
         nano \
         sqlite-libs \
         tzdata \
-        gettext \
     && mkdir -p /app/bin \
     && curl -fsSL "https://radarr.servarr.com/v1/update/${RADARR__UPDATE__BRANCH}/updatefile?version=${VERSION}&os=linuxmusl&runtime=netcore&arch=${TARGETARCH/amd64/x64}" \
         | tar xzf - -C /app/bin --strip-components=1 \
@@ -33,8 +36,7 @@ RUN \
     && rm -rf /tmp/* /app/bin/Radarr.Update
 
 # Copy your entrypoint and template
-COPY entrypoint.sh /entrypoint.sh
-COPY config.xml.tmpl /app/config.xml.tmpl
+COPY . /
 
 USER nobody:nogroup
 WORKDIR /config
