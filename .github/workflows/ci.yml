@@ -23,10 +23,19 @@ jobs:
       - name: Detect changed apps
         id: detect
         run: |
-          CHANGED_APPS=$(git diff --name-only origin/main HEAD \
-                        | grep '^apps/' \
-                        | cut -d/ -f2 \
-                        | sort -u)
+          # For push events, compare HEAD~1 to HEAD (previous commit)
+          # For PR events, compare against origin/main
+          if [ "${{ github.event_name }}" = "push" ]; then
+            CHANGED_APPS=$(git diff --name-only HEAD~1 HEAD \
+                          | grep '^apps/' \
+                          | cut -d/ -f2 \
+                          | sort -u)
+          else
+            CHANGED_APPS=$(git diff --name-only origin/main HEAD \
+                          | grep '^apps/' \
+                          | cut -d/ -f2 \
+                          | sort -u)
+          fi
           if [ -z "$CHANGED_APPS" ]; then
             echo "apps=[]" >> $GITHUB_OUTPUT
           else
