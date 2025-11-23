@@ -1,0 +1,19 @@
+<Config>
+  <LogLevel>{{ getenv "LIDARR__LOG_LEVEL" | default "info" }}</LogLevel>
+  <UrlBase>{{ getenv "LIDARR__URL_BASE" | default "" }}</UrlBase>
+  <Branch>{{ getenv "LIDARR__BRANCH" | default "master" }}</Branch>
+  <ApiKey>{{ getenv "LIDARR__API_KEY" | default "changemetosomethingalittlelongertrythisandodit" }}</ApiKey>
+  <AuthenticationMethod>{{ getenv "LIDARR__AUTHENTICATION_METHOD" | default "Forms" }}</AuthenticationMethod>
+  <AuthenticationRequired>{{ getenv "LIDARR__AUTHENTICATION_REQUIRED" | default "DisabledForLocalAddresses" }}</AuthenticationRequired>
+  <InstanceName>{{ getenv "LIDARR__INSTANCE_NAME" | default "Lidarr" }}</InstanceName>
+  <Port>{{ getenv "LIDARR__PORT" | default "8686" }}</Port>
+  <BindAddress>{{ getenv "LIDARR__BIND_ADDRESS" | default "*" }}</BindAddress>
+  <LaunchBrowser>{{ getenv "LIDARR__LAUNCH_BROWSER" | default "False" }}</LaunchBrowser>
+  <EnableSsl>{{ getenv "LIDARR__ENABLE_SSL" | default "False" }}</EnableSsl>
+  <SslPort>{{ getenv "LIDARR__SSL_PORT" | default "6969" }}</SslPort>
+  <SslCertPath>{{ getenv "LIDARR__SSL_CERT_PATH" | default "" }}</SslCertPath>
+  <SslCertPassword>{{ getenv "LIDARR__SSL_CERT_PASSWORD" | default "" }}</SslCertPassword>
+  <UpdateMechanism>{{ getenv "LIDARR__UPDATE_MECHANISM" | default "Docker" }}</UpdateMechanism>
+  <AnalyticsEnabled>{{ getenv "LIDARR__ANALYTICS_ENABLED" | default "False" }}</AnalyticsEnabled>
+  <Theme>{{ getenv "LIDARR__THEME" | default "auto" }}</Theme>
+</Config>
