@@ -25,19 +25,13 @@ jobs:
                         | cut -d/ -f2 \
                         | sort -u)
           if [ -z "$CHANGED_APPS" ]; then
-            echo "No apps changed."
             echo "matrix=[]" >> $GITHUB_OUTPUT
           else
-            # Convert newline-separated apps to JSON array
-            MATRIX_JSON='['
-            while IFS= read -r app; do
-              if [ -n "$MATRIX_JSON" ] && [ "$MATRIX_JSON" != "[" ]; then
-                MATRIX_JSON="$MATRIX_JSON,"
-              fi
-              MATRIX_JSON="$MATRIX_JSON\"$app\""
-            done <<< "$CHANGED_APPS"
-            MATRIX_JSON="$MATRIX_JSON]"
-            echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+            # Convert newline-separated apps to JSON array using proper EOF syntax
+            {
+              echo -n "matrix="
+              echo "$CHANGED_APPS" | jq -R . | jq -s .
+            } >> $GITHUB_OUTPUT
           fi
 
       - name: Set matrix output
