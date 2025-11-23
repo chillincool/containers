@@ -25,12 +25,22 @@ jobs:
                         | cut -d/ -f2 \
                         | sort -u)
           if [ -z "$CHANGED_APPS" ]; then
-            echo "matrix=[]" >> $GITHUB_OUTPUT
+            MATRIX="[]"
           else
-            # Convert to JSON array (compact, no whitespace)
-            MATRIX_JSON=$(echo "$CHANGED_APPS" | jq -csR 'split("\n")[:-1]')
-            echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+            # Build JSON array manually to avoid jq whitespace issues
+            MATRIX="["
+            FIRST=true
+            while IFS= read -r app; do
+              if [ "$FIRST" = true ]; then
+                MATRIX="${MATRIX}\"${app}\""
+                FIRST=false
+              else
+                MATRIX="${MATRIX},\"${app}\""
+              fi
+            done <<< "$CHANGED_APPS"
+            MATRIX="${MATRIX}]"
           fi
+          echo "matrix=${MATRIX}" >> $GITHUB_OUTPUT
 
       - name: Set matrix output
         id: set-matrix
