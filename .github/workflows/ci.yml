@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed apps
+        id: detect
+        run: |
+          CHANGED_APPS=$(git diff --name-only origin/main HEAD \
+                        | grep '^apps/' \
+                        | cut -d/ -f2 \
+                        | sort -u)
+          if [ -z "$CHANGED_APPS" ]; then
+            echo "No apps changed."
+            echo "matrix=[]" >> $GITHUB_OUTPUT
+          else
+            MATRIX_JSON=$(printf '%s\n' $CHANGED_APPS | jq -R . | jq -s .)
+            echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+      - name: Set matrix output
+        id: set-matrix
+        run: echo "matrix=${{ steps.detect.outputs.matrix }}" >> $GITHUB_OUTPUT
+
+  # PR workflow: single-arch build + test, no push (cheap)
+  pr-validate:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{fromJson(needs.detect-changes.outputs.matrix)}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (single-arch, no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/${{ matrix.app }}
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: false
+          platforms: linux/amd64
+          tags: ghcr.io/chillincool/${{ matrix.app }}:pr-${{ github.run_id }}
+          outputs: type=docker,dest=/tmp/${{ matrix.app }}-image.tar
+
+      - name: Load image into Docker
+        run: docker load --input /tmp/${{ matrix.app }}-image.tar
+
+      - name: Clean up image tar (free disk space)
+        run: rm -f /tmp/${{ matrix.app }}-image.tar
+
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Run container tests
+        env:
+          TEST_IMAGE: ghcr.io/chillincool/${{ matrix.app }}:pr-${{ github.run_id }}
+        run: |
+          cd testhelpers
+          go mod tidy
+          go test -v ../apps/${{ matrix.app }}/container_test.go
+
+  # Push workflow: multi-arch build + push, only on main (full build)
+  push-images:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{fromJson(needs.detect-changes.outputs.matrix)}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build & Push Container (multi-arch)
+        uses: ./.github/workflows/templates/container-build.yml
+        with:
+          app: ${{ matrix.app }}
+          context: apps/${{ matrix.app }}
+          dockerfile: apps/${{ matrix.app }}/Dockerfile
+          image: ghcr.io/chillincool/${{ matrix.app }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+        secrets:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Run container tests against pushed image
+        env:
+          TEST_IMAGE: ghcr.io/chillincool/${{ matrix.app }}:latest
+        run: |
+          cd testhelpers
+          go mod tidy
+          go test -v ../apps/${{ matrix.app }}/container_test.go

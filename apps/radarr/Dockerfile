@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM docker.io/library/alpine:3.22
+FROM alpine:3.22
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
 ARG TARGETARCH
 ARG VENDOR
 ARG VERSION
@@ -11,17 +13,15 @@ ENV DOTNET_EnableDiagnostics=0 \
 
 USER root
 WORKDIR /app
-RUN wget -O /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v4.3.3/gomplate_linux-amd64 \
-    && chmod +x /usr/local/bin/gomplate
 
-RUN \
-    apk add --no-cache \
+# Install dependencies and download Radarr
+RUN apk add --no-cache \
         bash \
         ca-certificates \
         catatonit \
         coreutils \
         curl \
-        #gomplate \
+        gomplate \
         icu-libs \
         jq \
         libintl \
@@ -29,17 +29,33 @@ RUN \
         sqlite-libs \
         tzdata \
     && mkdir -p /app/bin \
-    && curl -fsSL "https://radarr.servarr.com/v1/update/${RADARR__UPDATE__BRANCH}/updatefile?version=${VERSION}&os=linuxmusl&runtime=netcore&arch=${TARGETARCH/amd64/x64}" \
+    && case "$TARGETARCH" in \
+         amd64) ARCH="x64" ;; \
+         arm64) ARCH="arm64" ;; \
+         *) ARCH="$TARGETARCH" ;; \
+       esac \
+    && curl -fsSL "https://radarr.servarr.com/v1/update/${RADARR__UPDATE__BRANCH}/updatefile?version=${VERSION}&os=linuxmusl&runtime=netcore&arch=${ARCH}" \
         | tar xzf - -C /app/bin --strip-components=1 \
-    && printf "UpdateMethod=docker\nBranch=%s\nPackageVersion=%s\nPackageAuthor=[%s](https://github.com/%s)\n" "${RADARR__UPDATE__BRANCH}" "${VERSION}" "${VENDOR}" "${VENDOR}" > /app/package_info \
-    && chown -R root:root /app && chmod -R 755 /app \
+    && printf "UpdateMethod=docker\nBranch=%s\nPackageVersion=%s\nPackageAuthor=[%s](https://github.com/%s)\n" \
+         "${RADARR__UPDATE__BRANCH}" "${VERSION}" "${VENDOR}" "${VENDOR}" > /app/package_info \
+    && chown -R root:root /app \
+    && chmod -R 755 /app \
     && rm -rf /tmp/* /app/bin/Radarr.Update
 
-# Copy your entrypoint and template
+# Copy entrypoint script and config templates
 COPY . /
 
-USER nobody:nogroup
+# Ensure entrypoint script is executable
+RUN chmod +x /entrypoint.sh
 WORKDIR /config
 VOLUME ["/config"]
 
+# Healthcheck to ensure Radarr is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
+  CMD curl -fsS http://localhost:7878/ping || exit 1
+
+# OCI metadata
+LABEL org.opencontainers.image.source="https://github.com/chillincool/containers"
+
+# Entrypoint
 ENTRYPOINT ["/usr/bin/catatonit", "--", "/entrypoint.sh"]

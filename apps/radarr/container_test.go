@@ -9,6 +9,6 @@ import (
 
 func Test(t *testing.T) {
 	ctx := context.Background()
-	image := testhelpers.GetTestImage("ghcr.io/home-operations/radarr:rolling")
+	image := testhelpers.GetTestImage("ghcr.io/chillincool/containers/radarr:local")
 	testhelpers.TestHTTPEndpoint(t, ctx, image, testhelpers.HTTPTestConfig{Port: "7878"}, nil)
 }
