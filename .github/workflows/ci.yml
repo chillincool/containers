@@ -110,7 +110,6 @@ jobs:
           image: ghcr.io/chillincool/${{ matrix.app }}
           push: true
           platforms: linux/amd64,linux/arm64
-        secrets: inherit
 
       - name: Install Go
         uses: actions/setup-go@v4
