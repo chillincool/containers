@@ -27,11 +27,9 @@ jobs:
           if [ -z "$CHANGED_APPS" ]; then
             echo "matrix=[]" >> $GITHUB_OUTPUT
           else
-            # Convert newline-separated apps to JSON array using proper EOF syntax
-            {
-              echo -n "matrix="
-              echo "$CHANGED_APPS" | jq -R . | jq -s .
-            } >> $GITHUB_OUTPUT
+            # Convert to JSON array (compact, no whitespace)
+            MATRIX_JSON=$(echo "$CHANGED_APPS" | jq -csR 'split("\n")[:-1]')
+            echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
           fi
 
       - name: Set matrix output
