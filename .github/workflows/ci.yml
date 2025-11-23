@@ -5,11 +5,14 @@ on:
     branches: [ main ]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      apps: ${{ steps.detect.outputs.apps }}
 
     steps:
       - name: Checkout repository
@@ -25,25 +28,32 @@ jobs:
                         | cut -d/ -f2 \
                         | sort -u)
           if [ -z "$CHANGED_APPS" ]; then
-            echo "No apps changed."
-            echo "matrix=[]" >> $GITHUB_OUTPUT
+            echo "apps=[]" >> $GITHUB_OUTPUT
           else
-            MATRIX_JSON=$(printf '%s\n' $CHANGED_APPS | jq -R . | jq -s .)
-            echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
-
-      - name: Set matrix output
-        id: set-matrix
-        run: echo "matrix=${{ steps.detect.outputs.matrix }}" >> $GITHUB_OUTPUT
+            # Build JSON array manually to avoid jq whitespace issues
+            MATRIX="["
+            FIRST=true
+            while IFS= read -r app; do
+              if [ "$FIRST" = true ]; then
+                MATRIX="${MATRIX}\"${app}\""
+                FIRST=false
+              else
+                MATRIX="${MATRIX},\"${app}\""
+              fi
+            done <<< "$CHANGED_APPS"
+            MATRIX="${MATRIX}]"
+            echo "apps=${MATRIX}" >> $GITHUB_OUTPUT
+          fi
 
   # PR workflow: single-arch build + test, no push (cheap)
   pr-validate:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.matrix != '[]'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.apps != '[]'
     strategy:
       fail-fast: false
       matrix:
-        app: ${{fromJson(needs.detect-changes.outputs.matrix)}}
+        app: ${{fromJson(needs.detect-changes.outputs.apps)}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -92,11 +102,11 @@ jobs:
   push-images:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.matrix != '[]'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.apps != '[]'
     strategy:
       fail-fast: false
       matrix:
-        app: ${{fromJson(needs.detect-changes.outputs.matrix)}}
+        app: ${{fromJson(needs.detect-changes.outputs.apps)}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -110,8 +120,6 @@ jobs:
           image: ghcr.io/chillincool/${{ matrix.app }}
           push: true
           platforms: linux/amd64,linux/arm64
-        secrets:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Go
         uses: actions/setup-go@v4

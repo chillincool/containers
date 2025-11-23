@@ -7,5 +7,5 @@ if [[ ! -f /config/config.xml ]]; then
 	gomplate -f /config.xml.tmpl -o /config/config.xml --datasource env
 fi
 
-# Start Radarr
-exec /app/bin/Radarr --nobrowser --data=/config "$@"
+# Start Sonarr
+exec /app/bin/Sonarr --nobrowser --data=/config "$@"
