@@ -30,6 +30,7 @@ jobs:
           else
             MATRIX_JSON=$(printf '%s\n' $CHANGED_APPS | jq -R . | jq -s .)
             echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set matrix output
         id: set-matrix
