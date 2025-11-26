@@ -37,24 +37,36 @@ help:
 
 build-image:
 	@echo "Building single-arch image for $(APP)..."
-	@if [ -z "$(VERSION)" ]; then echo "WARNING: VERSION not specified, build may fail if app requires it"; fi
-	docker build -t $(IMAGE) \
-		--build-arg VERSION=$(VERSION) \
-		--build-arg VENDOR=$(VENDOR) \
-		-f apps/$(APP)/Dockerfile apps/$(APP)
+	@if [ -n "$(VERSION)" ]; then \
+		echo "  With VERSION=$(VERSION)"; \
+		docker build -t $(IMAGE) \
+			--build-arg VERSION=$(VERSION) \
+			-f apps/$(APP)/Dockerfile apps/$(APP); \
+	else \
+		docker build -t $(IMAGE) \
+			-f apps/$(APP)/Dockerfile apps/$(APP); \
+	fi
 	@echo "Image built: $(IMAGE)"
 
 buildx:
 	@echo "Building multi-arch image for $(APP) (linux/amd64,linux/arm64)..."
-	@if [ -z "$(VERSION)" ]; then echo "WARNING: VERSION not specified, build may fail if app requires it"; fi
-	docker buildx build \
-		--platform linux/amd64,linux/arm64 \
-		--build-arg VERSION=$(VERSION) \
-		--build-arg VENDOR=$(VENDOR) \
-		-t $(IMAGE) \
-		-f apps/$(APP)/Dockerfile \
-		apps/$(APP) \
-		--load
+	@if [ -n "$(VERSION)" ]; then \
+		echo "  With VERSION=$(VERSION)"; \
+		docker buildx build \
+			--platform linux/amd64,linux/arm64 \
+			--build-arg VERSION=$(VERSION) \
+			-t $(IMAGE) \
+			-f apps/$(APP)/Dockerfile \
+			apps/$(APP) \
+			--load; \
+	else \
+		docker buildx build \
+			--platform linux/amd64,linux/arm64 \
+			-t $(IMAGE) \
+			-f apps/$(APP)/Dockerfile \
+			apps/$(APP) \
+			--load; \
+	fi
 	@echo "Image loaded: $(IMAGE)"
 
 test:
