@@ -1,5 +1,5 @@
 FROM alpine as cloner
-ARG VERSION=master
+ARG VERSION=main
 RUN apk add --update --no-cache tmux ttyd git && \
     git clone --depth 1 -b $VERSION https://github.com/sirrobot01/decypharr.git /source || \
     git clone --depth 1 https://github.com/sirrobot01/decypharr.git /source
