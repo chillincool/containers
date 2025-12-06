@@ -4,6 +4,12 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'App to build (leave empty to build all changed apps)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -24,14 +30,17 @@ jobs:
       - name: Detect changed apps
         id: detect
         run: |
+          # For manual workflow dispatch with specific app
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.app }}" ]; then
+            CHANGED_APPS="${{ inputs.app }}"
           # For push events, compare against origin/main before the push
-          # For PR events, compare against origin/main
-          if [ "${{ github.event_name }}" = "push" ]; then
+          elif [ "${{ github.event_name }}" = "push" ]; then
             # Use before SHA from push event to compare what actually changed in this push
             CHANGED_APPS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
                           | grep '^apps/' \
                           | cut -d/ -f2 \
                           | sort -u)
+          # For PR events or manual dispatch without app, compare against origin/main
           else
             CHANGED_APPS=$(git diff --name-only origin/main HEAD \
                           | grep '^apps/' \
