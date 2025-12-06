@@ -1,0 +1,120 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "after 10pm every weekday",
+    "before 5am every weekday",
+    "every weekend"
+  ],
+  "labels": ["dependencies"],
+  "semanticCommits": "enabled",
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "description": "Automerge minor and patch updates for GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "description": "Group all Go dependency updates together",
+      "matchManagers": ["gomod"],
+      "groupName": "Go dependencies"
+    }
+  ],
+  "regexManagers": [
+    {
+      "description": "Track Plex Media Server version in apps/plex/VERSION file",
+      "fileMatch": ["^apps/plex/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "plexinc/pms-docker",
+      "extractVersionTemplate": "^(?<version>.*)$"
+    },
+    {
+      "description": "Track Overseerr releases in VERSION file",
+      "fileMatch": ["^apps/overseerr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "sct/overseerr",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track SuggestArr releases in VERSION file",
+      "fileMatch": ["^apps/suggestarr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "giuseppe99barchetta/SuggestArr",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track Kometa releases in VERSION file",
+      "fileMatch": ["^apps/kometa/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "Kometa-Team/Kometa",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track ImageMaid releases in VERSION file",
+      "fileMatch": ["^apps/imagemaid/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "Kometa-Team/ImageMaid",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track Huntarr releases in VERSION file",
+      "fileMatch": ["^apps/huntarr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "plexguide/Huntarr.io"
+    },
+    {
+      "description": "Track Tautulli releases in VERSION file",
+      "fileMatch": ["^apps/tautulli/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "Tautulli/Tautulli",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track Radarr releases in VERSION file",
+      "fileMatch": ["^apps/radarr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "Radarr/Radarr"
+    },
+    {
+      "description": "Track Sonarr releases in VERSION file",
+      "fileMatch": ["^apps/sonarr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "Sonarr/Sonarr"
+    },
+    {
+      "description": "Track Prowlarr releases in VERSION file",
+      "fileMatch": ["^apps/prowlarr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "Prowlarr/Prowlarr"
+    },
+    {
+      "description": "Track Lidarr releases in VERSION file",
+      "fileMatch": ["^apps/lidarr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "Lidarr/Lidarr"
+    },
+    {
+      "description": "Track Decypharr releases in VERSION file",
+      "fileMatch": ["^apps/decypharr/VERSION$"],
+      "matchStrings": ["^(?<currentValue>.+)$"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "sirrobot01/decypharr",
+      "versioningTemplate": "semver"
+    }
+  ]
+}

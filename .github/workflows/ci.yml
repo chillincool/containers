@@ -71,6 +71,106 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Get Plex version (if app is plex)
+        id: plex-version
+        if: matrix.app == 'plex'
+        run: |
+          if [ -f apps/plex/VERSION ]; then
+            VERSION=$(cat apps/plex/VERSION)
+          else
+            VERSION=$(curl -s https://plex.tv/api/downloads/5.json | jq -r '.computer.Linux.version')
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Plex version: $VERSION"
+
+      - name: Get Overseerr version (if app is overseerr)
+        id: overseerr-version
+        if: matrix.app == 'overseerr'
+        run: |
+          VERSION=$(cat apps/overseerr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Overseerr version: $VERSION"
+
+      - name: Get SuggestArr version (if app is suggestarr)
+        id: suggestarr-version
+        if: matrix.app == 'suggestarr'
+        run: |
+          VERSION=$(cat apps/suggestarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "SuggestArr version: $VERSION"
+
+      - name: Get Kometa version (if app is kometa)
+        id: kometa-version
+        if: matrix.app == 'kometa'
+        run: |
+          VERSION=$(cat apps/kometa/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Kometa version: $VERSION"
+
+      - name: Get ImageMaid version (if app is imagemaid)
+        id: imagemaid-version
+        if: matrix.app == 'imagemaid'
+        run: |
+          VERSION=$(cat apps/imagemaid/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "ImageMaid version: $VERSION"
+
+      - name: Get Huntarr version (if app is huntarr)
+        id: huntarr-version
+        if: matrix.app == 'huntarr'
+        run: |
+          VERSION=$(cat apps/huntarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Huntarr version: $VERSION"
+
+      - name: Get Tautulli version (if app is tautulli)
+        id: tautulli-version
+        if: matrix.app == 'tautulli'
+        run: |
+          VERSION=$(cat apps/tautulli/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Tautulli version: $VERSION"
+
+      - name: Get Radarr version (if app is radarr)
+        id: radarr-version
+        if: matrix.app == 'radarr'
+        run: |
+          VERSION=$(cat apps/radarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Radarr version: $VERSION"
+
+      - name: Get Sonarr version (if app is sonarr)
+        id: sonarr-version
+        if: matrix.app == 'sonarr'
+        run: |
+          VERSION=$(cat apps/sonarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Sonarr version: $VERSION"
+
+      - name: Get Prowlarr version (if app is prowlarr)
+        id: prowlarr-version
+        if: matrix.app == 'prowlarr'
+        run: |
+          VERSION=$(cat apps/prowlarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Prowlarr version: $VERSION"
+
+      - name: Get Lidarr version (if app is lidarr)
+        id: lidarr-version
+        if: matrix.app == 'lidarr'
+        run: |
+          VERSION=$(cat apps/lidarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Lidarr version: $VERSION"
+
+      - name: Get Decypharr version (if app is decypharr)
+        id: decypharr-version
+        if: matrix.app == 'decypharr'
+        run: |
+          VERSION=$(cat apps/decypharr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Decypharr version: $VERSION"
+
       - name: Build image (single-arch, no push)
         uses: docker/build-push-action@v6
         with:
@@ -80,6 +180,19 @@ jobs:
           platforms: linux/amd64
           tags: ghcr.io/chillincool/${{ matrix.app }}:pr-${{ github.run_id }}
           outputs: type=docker,dest=/tmp/${{ matrix.app }}-image.tar
+          build-args: |
+            ${{ matrix.app == 'plex' && format('VERSION={0}', steps.plex-version.outputs.version) || '' }}
+            ${{ matrix.app == 'overseerr' && format('VERSION={0}', steps.overseerr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'suggestarr' && format('VERSION={0}', steps.suggestarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'kometa' && format('VERSION={0}', steps.kometa-version.outputs.version) || '' }}
+            ${{ matrix.app == 'imagemaid' && format('VERSION={0}', steps.imagemaid-version.outputs.version) || '' }}
+            ${{ matrix.app == 'huntarr' && format('VERSION={0}', steps.huntarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'tautulli' && format('VERSION={0}', steps.tautulli-version.outputs.version) || '' }}
+            ${{ matrix.app == 'radarr' && format('VERSION={0}', steps.radarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'sonarr' && format('VERSION={0}', steps.sonarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'prowlarr' && format('VERSION={0}', steps.prowlarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'lidarr' && format('VERSION={0}', steps.lidarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'decypharr' && format('VERSION={0}', steps.decypharr-version.outputs.version) || '' }}
 
       - name: Load image into Docker
         run: docker load --input /tmp/${{ matrix.app }}-image.tar
@@ -134,6 +247,106 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get Plex version (if app is plex)
+        id: plex-version
+        if: matrix.app == 'plex'
+        run: |
+          if [ -f apps/plex/VERSION ]; then
+            VERSION=$(cat apps/plex/VERSION)
+          else
+            VERSION=$(curl -s https://plex.tv/api/downloads/5.json | jq -r '.computer.Linux.version')
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Plex version: $VERSION"
+
+      - name: Get Overseerr version (if app is overseerr)
+        id: overseerr-version
+        if: matrix.app == 'overseerr'
+        run: |
+          VERSION=$(cat apps/overseerr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Overseerr version: $VERSION"
+
+      - name: Get SuggestArr version (if app is suggestarr)
+        id: suggestarr-version
+        if: matrix.app == 'suggestarr'
+        run: |
+          VERSION=$(cat apps/suggestarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "SuggestArr version: $VERSION"
+
+      - name: Get Kometa version (if app is kometa)
+        id: kometa-version
+        if: matrix.app == 'kometa'
+        run: |
+          VERSION=$(cat apps/kometa/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Kometa version: $VERSION"
+
+      - name: Get ImageMaid version (if app is imagemaid)
+        id: imagemaid-version
+        if: matrix.app == 'imagemaid'
+        run: |
+          VERSION=$(cat apps/imagemaid/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "ImageMaid version: $VERSION"
+
+      - name: Get Huntarr version (if app is huntarr)
+        id: huntarr-version
+        if: matrix.app == 'huntarr'
+        run: |
+          VERSION=$(cat apps/huntarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Huntarr version: $VERSION"
+
+      - name: Get Tautulli version (if app is tautulli)
+        id: tautulli-version
+        if: matrix.app == 'tautulli'
+        run: |
+          VERSION=$(cat apps/tautulli/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Tautulli version: $VERSION"
+
+      - name: Get Radarr version (if app is radarr)
+        id: radarr-version
+        if: matrix.app == 'radarr'
+        run: |
+          VERSION=$(cat apps/radarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Radarr version: $VERSION"
+
+      - name: Get Sonarr version (if app is sonarr)
+        id: sonarr-version
+        if: matrix.app == 'sonarr'
+        run: |
+          VERSION=$(cat apps/sonarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Sonarr version: $VERSION"
+
+      - name: Get Prowlarr version (if app is prowlarr)
+        id: prowlarr-version
+        if: matrix.app == 'prowlarr'
+        run: |
+          VERSION=$(cat apps/prowlarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Prowlarr version: $VERSION"
+
+      - name: Get Lidarr version (if app is lidarr)
+        id: lidarr-version
+        if: matrix.app == 'lidarr'
+        run: |
+          VERSION=$(cat apps/lidarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Lidarr version: $VERSION"
+
+      - name: Get Decypharr version (if app is decypharr)
+        id: decypharr-version
+        if: matrix.app == 'decypharr'
+        run: |
+          VERSION=$(cat apps/decypharr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Decypharr version: $VERSION"
+
       - name: Build & Push image (multi-arch)
         uses: docker/build-push-action@v6
         with:
@@ -146,6 +359,19 @@ jobs:
           tags: |
             ghcr.io/chillincool/${{ matrix.app }}:latest
             ghcr.io/chillincool/${{ matrix.app }}:${{ github.sha }}
+          build-args: |
+            ${{ matrix.app == 'plex' && format('VERSION={0}', steps.plex-version.outputs.version) || '' }}
+            ${{ matrix.app == 'overseerr' && format('VERSION={0}', steps.overseerr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'suggestarr' && format('VERSION={0}', steps.suggestarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'kometa' && format('VERSION={0}', steps.kometa-version.outputs.version) || '' }}
+            ${{ matrix.app == 'imagemaid' && format('VERSION={0}', steps.imagemaid-version.outputs.version) || '' }}
+            ${{ matrix.app == 'huntarr' && format('VERSION={0}', steps.huntarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'tautulli' && format('VERSION={0}', steps.tautulli-version.outputs.version) || '' }}
+            ${{ matrix.app == 'radarr' && format('VERSION={0}', steps.radarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'sonarr' && format('VERSION={0}', steps.sonarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'prowlarr' && format('VERSION={0}', steps.prowlarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'lidarr' && format('VERSION={0}', steps.lidarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'decypharr' && format('VERSION={0}', steps.decypharr-version.outputs.version) || '' }}
 
       - name: Install Go
         uses: actions/setup-go@v4
