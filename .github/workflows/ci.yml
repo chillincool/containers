@@ -10,6 +10,11 @@ on:
         description: 'App to build (leave empty to build all changed apps)'
         required: false
         type: string
+      force_all:
+        description: 'Force rebuild all apps'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -30,8 +35,11 @@ jobs:
       - name: Detect changed apps
         id: detect
         run: |
+          # For manual workflow dispatch forcing all apps
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force_all }}" = "true" ]; then
+            CHANGED_APPS=$(ls -d apps/*/ | cut -d/ -f2 | sort -u)
           # For manual workflow dispatch with specific app
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.app }}" ]; then
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.app }}" ]; then
             CHANGED_APPS="${{ inputs.app }}"
           # For push events, compare against origin/main before the push
           elif [ "${{ github.event_name }}" = "push" ]; then
@@ -369,6 +377,18 @@ jobs:
           tags: |
             ghcr.io/chillincool/${{ matrix.app }}:latest
             ghcr.io/chillincool/${{ matrix.app }}:${{ github.sha }}
+            ${{ matrix.app == 'plex' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.plex-version.outputs.version) || '' }}
+            ${{ matrix.app == 'overseerr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.overseerr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'suggestarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.suggestarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'kometa' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.kometa-version.outputs.version) || '' }}
+            ${{ matrix.app == 'imagemaid' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.imagemaid-version.outputs.version) || '' }}
+            ${{ matrix.app == 'huntarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.huntarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'tautulli' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.tautulli-version.outputs.version) || '' }}
+            ${{ matrix.app == 'radarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.radarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'sonarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.sonarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'prowlarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.prowlarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'lidarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.lidarr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'decypharr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.decypharr-version.outputs.version) || '' }}
           build-args: |
             ${{ matrix.app == 'plex' && format('VERSION={0}', steps.plex-version.outputs.version) || '' }}
             ${{ matrix.app == 'overseerr' && format('VERSION={0}', steps.overseerr-version.outputs.version) || '' }}
