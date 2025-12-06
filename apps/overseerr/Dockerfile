@@ -18,7 +18,8 @@ RUN \
       yarn global add node-gyp \
       ;; \
     *) \
-      echo "Skipping ARM build dependencies (not an ARM platform)" \
+      echo "Skipping ARM build dependencies (not an ARM platform)"; \
+      true \
       ;; \
   esac
 

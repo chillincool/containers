@@ -24,10 +24,11 @@ jobs:
       - name: Detect changed apps
         id: detect
         run: |
-          # For push events, compare HEAD~1 to HEAD (previous commit)
+          # For push events, compare against origin/main before the push
           # For PR events, compare against origin/main
           if [ "${{ github.event_name }}" = "push" ]; then
-            CHANGED_APPS=$(git diff --name-only HEAD~1 HEAD \
+            # Use before SHA from push event to compare what actually changed in this push
+            CHANGED_APPS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
                           | grep '^apps/' \
                           | cut -d/ -f2 \
                           | sort -u)
