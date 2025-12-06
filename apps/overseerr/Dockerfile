@@ -15,7 +15,7 @@ RUN \
       echo "Installing ARM build dependencies..." && \
       apk update && \
       apk add --no-cache python3 make g++ gcc libc6-compat bash && \
-      yarn global add node-gyp \
+      npm install -g node-gyp \
       ;; \
     *) \
       echo "Skipping ARM build dependencies (not an ARM platform)"; \
