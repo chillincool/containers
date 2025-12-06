@@ -27,7 +27,7 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Download and extract Tautulli
-RUN curl -fsSL "https://github.com/Tautulli/Tautulli/archive/v${VERSION}.tar.gz" \
+RUN curl -fsSL "https://github.com/Tautulli/Tautulli/archive/refs/tags/${VERSION}.tar.gz" \
         | tar xzf - -C /app --strip-components 1
 
 # Copy entrypoint
