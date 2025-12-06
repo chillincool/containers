@@ -354,7 +354,7 @@ jobs:
           context: apps/${{ matrix.app }}
           file: apps/${{ matrix.app }}/Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.app == 'overseerr' && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
