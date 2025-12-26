@@ -189,6 +189,14 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Decypharr version: $VERSION"
 
+      - name: Get Recyclarr version (if app is recyclarr)
+        id: recyclarr-version
+        if: matrix.app == 'recyclarr'
+        run: |
+          VERSION=$(cat apps/recyclarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Recyclarr version: $VERSION"
+
       - name: Build image (single-arch, no push)
         uses: docker/build-push-action@v6
         with:
@@ -211,6 +219,7 @@ jobs:
             ${{ matrix.app == 'prowlarr' && format('VERSION={0}', steps.prowlarr-version.outputs.version) || '' }}
             ${{ matrix.app == 'lidarr' && format('VERSION={0}', steps.lidarr-version.outputs.version) || '' }}
             ${{ matrix.app == 'decypharr' && format('VERSION={0}', steps.decypharr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'recyclarr' && format('VERSION={0}', steps.recyclarr-version.outputs.version) || '' }}
 
       - name: Load image into Docker
         run: docker load --input /tmp/${{ matrix.app }}-image.tar
@@ -365,6 +374,14 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Decypharr version: $VERSION"
 
+      - name: Get Recyclarr version (if app is recyclarr)
+        id: recyclarr-version
+        if: matrix.app == 'recyclarr'
+        run: |
+          VERSION=$(cat apps/recyclarr/VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Recyclarr version: $VERSION"
+
       - name: Build & Push image (multi-arch)
         uses: docker/build-push-action@v6
         with:
@@ -389,6 +406,7 @@ jobs:
             ${{ matrix.app == 'prowlarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.prowlarr-version.outputs.version) || '' }}
             ${{ matrix.app == 'lidarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.lidarr-version.outputs.version) || '' }}
             ${{ matrix.app == 'decypharr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.decypharr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'recyclarr' && format('ghcr.io/chillincool/{0}:{1}', matrix.app, steps.recyclarr-version.outputs.version) || '' }}
           build-args: |
             ${{ matrix.app == 'plex' && format('VERSION={0}', steps.plex-version.outputs.version) || '' }}
             ${{ matrix.app == 'overseerr' && format('VERSION={0}', steps.overseerr-version.outputs.version) || '' }}
@@ -402,6 +420,7 @@ jobs:
             ${{ matrix.app == 'prowlarr' && format('VERSION={0}', steps.prowlarr-version.outputs.version) || '' }}
             ${{ matrix.app == 'lidarr' && format('VERSION={0}', steps.lidarr-version.outputs.version) || '' }}
             ${{ matrix.app == 'decypharr' && format('VERSION={0}', steps.decypharr-version.outputs.version) || '' }}
+            ${{ matrix.app == 'recyclarr' && format('VERSION={0}', steps.recyclarr-version.outputs.version) || '' }}
 
       - name: Install Go
         uses: actions/setup-go@v4
